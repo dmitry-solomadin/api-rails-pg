@@ -32,7 +32,7 @@ class PostsController < ApplicationController
     @post.destroy
   end
 
-  private
+private
 
   def load_post
     @post = Post.find(params[:id])

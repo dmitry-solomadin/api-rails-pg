@@ -1,7 +1,7 @@
 module Concerns::Render
   extend ActiveSupport::Concern
 
-  private
+private
 
   def render_json(obj, opts = {})
     render({ json: obj, fields: params[:fields], include: params[:include] }.merge!(opts))
