@@ -9,13 +9,6 @@ gem 'puma'
 gem 'cancancan'
 gem 'devise_token_auth'
 
-# Use jquery as the JavaScript library
-gem 'jquery-rails'
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.0'
-# bundle exec rake doc:rails generates the API under doc/api.
-gem 'sdoc', '~> 0.4.0', group: :doc
-
 group :development, :test do
   gem 'byebug'
   gem 'rubocop', require: false
@@ -23,3 +16,10 @@ group :development, :test do
   gem 'spring'
 end
 
+group :test do
+  gem 'database_rewinder'
+  gem 'rspec-rails'
+  gem 'shoulda-matchers', '2.8.0' # has breaking changes in 3.x
+  gem 'factory_girl_rails'
+  gem 'json_spec'
+end

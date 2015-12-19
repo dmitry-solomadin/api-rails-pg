@@ -3,7 +3,7 @@ class PostsController < ApplicationController
 
   def index
     @posts = Post.all
-    render json: @todos
+    render json: @posts
   end
 
   def show
@@ -16,7 +16,7 @@ class PostsController < ApplicationController
     if @post.save
       render json: @post, status: :created, location: @post
     else
-      render json: @post.errors, status: :unprocessable_entity
+      render_errors_json(messages: @post.errors.messages, status: :unprocessable_entity)
     end
   end
 
@@ -34,7 +34,7 @@ class PostsController < ApplicationController
 
   private
 
-  def lost_todo
+  def load_post
     @post = Post.find(params[:id])
   end
 

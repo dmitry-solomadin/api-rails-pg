@@ -1,7 +1,7 @@
 class CreateComments < ActiveRecord::Migration
   def change
     create_table :comments do |t|
-      t.column :text, :text, null: false
+      t.column :text, :text
       t.column :post_id, :string
       t.references(:parent, polymorphic: true, index: true)
 
