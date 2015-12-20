@@ -72,11 +72,69 @@ describe 'Posts' do
       it 'returns empty data' do
         get '/posts/123'
 
-        expect(response.body).to eq 'null'
-        expect(response.status).to eq 200
+        expect(json).to be_jsonapi_not_found_error("Couldn't find Post with 'id'=123")
+        expect(response.status).to eq 404
       end
     end
   end
 
+  # Destroy
+  describe 'DELETE /posts/:id' do
+    let!(:user) { create :user }
+    let!(:post) { create :post, author: user }
 
+    context 'when Post exists' do
+      it 'deletes Post' do
+        delete "/posts/#{post.id}"
+
+        expect(Post.count).to eq 0
+        expect(response.body).to be_json_eql('')
+        expect(response.status).to eq 200
+      end
+    end
+
+    context 'when Post does not exist' do
+      it 'returns error' do
+        delete '/posts/123'
+
+        expect(json).to be_jsonapi_not_found_error("Couldn't find Post with 'id'=123")
+        expect(response.status).to eq 404
+      end
+    end
+  end
+
+  # Update
+  describe 'PATCH /posts/:id' do
+    context 'when Post exists' do
+      let(:user) { create :user }
+      let(:post) { create :post, author: user }
+
+      context 'with valid params' do
+        it 'updates Post' do
+          patch "/posts/#{post.id}", post: { body: 'new body', header: 'new header' }
+
+          post.reload
+          expect(post.body).to eq 'new body'
+          expect(post.header).to eq 'new header'
+
+          expect(response.body).to be_json_eql(post.to_json)
+          expect(response.status).to eq 200
+        end
+      end
+
+      describe 'Unprocessable Entity' do
+        context 'with invalid params' do
+          it 'does not update Post' do
+            patch "/posts/#{post.id}", post: { body: '', header: '' }
+
+            post.reload
+            expect(post.body).to eq 'body'
+
+            expect(json).to be_jsonapi_validation_errors('body' => "can't be blank", 'header' => "can't be blank")
+            expect(response.status).to eq 422
+          end
+        end
+      end
+    end
+  end
 end

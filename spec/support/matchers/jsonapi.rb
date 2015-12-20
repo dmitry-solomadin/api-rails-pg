@@ -12,3 +12,18 @@ RSpec::Matchers.define :be_jsonapi_validation_errors do |errors|
       end
   end
 end
+
+RSpec::Matchers.define :be_jsonapi_not_found_error do |message|
+  match do |response|
+    response == {
+      'errors' => [
+        {
+          'status' => 404,
+          'title' => 'Not found',
+          'source' => { 'attribute' => '' },
+          'message' => message
+        }
+      ]
+    }
+  end
+end

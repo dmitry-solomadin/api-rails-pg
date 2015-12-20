@@ -24,18 +24,22 @@ class PostsController < ApplicationController
     if @post.update(post_params)
       render json: @post
     else
-      render json: @post.errors, status: :unprocessable_entity
+      render_errors_json(messages: @post.errors.messages, status: :unprocessable_entity)
     end
   end
 
   def destroy
-    @post.destroy
+    if @post.destroy
+      head :ok
+    else
+      render_errors_json(messages: 'Post cannot be deleted', status: :unprocessable_entity)
+    end
   end
 
 private
 
   def load_post
-    @post = Post.find_by(id: params[:id])
+    @post = Post.find(params[:id])
   end
 
   def post_params
