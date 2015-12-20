@@ -1,7 +1,32 @@
 describe 'Posts' do
-  describe 'POST /posts', :vcr do
-    let(:user) { create :user }
+  let!(:user) { create :user }
 
+  # Index
+  describe 'GET /posts' do
+    context 'when Posts exist in database' do
+      let!(:post_1) { create :post, author: user }
+      let!(:post_2) { create :post, author: user }
+
+      it 'returns Posts' do
+        get '/posts'
+
+        expect(response.body).to be_json_eql(to_json(post_1, post_2))
+        expect(response.status).to eq 200
+      end
+    end
+
+    context 'when Posts does not exist in database' do
+      it 'returns empty data' do
+        get '/posts'
+
+        expect(response.body).to eq empty_json_data
+        expect(response.status).to eq 200
+      end
+    end
+  end
+
+  # Create
+  describe 'POST /posts' do
     context 'with valid params' do
       it 'creates a Post' do
         post '/posts', post: { author_id: user.id, body: 'This is post body', header: 'Great header' }
@@ -29,4 +54,29 @@ describe 'Posts' do
       end
     end
   end
+
+  # Get
+  describe 'GET /posts/:id' do
+    context 'when Post exist in database' do
+      let!(:post) { create :post, author: user }
+
+      it 'returns Post' do
+        get "/posts/#{post.id}"
+
+        expect(response.body).to be_json_eql(post.to_json)
+        expect(response.status).to eq 200
+      end
+    end
+
+    context 'when Post does not exist in database' do
+      it 'returns empty data' do
+        get '/posts/123'
+
+        expect(response.body).to eq 'null'
+        expect(response.status).to eq 200
+      end
+    end
+  end
+
+
 end
