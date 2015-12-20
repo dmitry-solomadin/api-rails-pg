@@ -3,9 +3,11 @@ class CreateComments < ActiveRecord::Migration
     create_table :comments do |t|
       t.column :text, :text
       t.column :post_id, :string
+      t.column :author_id, :integer
       t.references(:parent, polymorphic: true, index: true)
 
       t.index :parent_id
+      t.index :author_id
       t.timestamps null: false
     end
   end

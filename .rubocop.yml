@@ -21,6 +21,7 @@ AllCops:
   - 'script/**/*'
   - 'spec/spec_helper.rb'
   - 'db/migrate/**'
+  - db/schema.rb
   - 'config/initializers/devise.rb'
   RunRailsCops: false
   DisplayCopNames: false
