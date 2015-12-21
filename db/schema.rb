@@ -11,40 +11,48 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151219132812) do
+ActiveRecord::Schema.define(version: 20151221093754) do
+
   # These are extensions that must be enabled in order to support this database
-  enable_extension 'plpgsql'
+  enable_extension "plpgsql"
 
-  create_table 'comments', force: :cascade do |t|
-    t.text 'text'
-    t.string 'post_id'
-    t.integer 'author_id'
-    t.integer 'parent_id'
-    t.string 'parent_type'
-    t.datetime 'created_at',  null: false
-    t.datetime 'updated_at',  null: false
+  create_table "comments", force: :cascade do |t|
+    t.text     "text"
+    t.string   "post_id"
+    t.integer  "author_id"
+    t.integer  "parent_id"
+    t.string   "parent_type"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
-  add_index 'comments', ['author_id'], name: 'index_comments_on_author_id', using: :btree
-  add_index 'comments', ['parent_id'], name: 'index_comments_on_parent_id', using: :btree
-  add_index 'comments', ['parent_type', 'parent_id'], name: 'index_comments_on_parent_type_and_parent_id', using: :btree
+  add_index "comments", ["author_id"], name: "index_comments_on_author_id", using: :btree
+  add_index "comments", ["parent_id"], name: "index_comments_on_parent_id", using: :btree
+  add_index "comments", ["parent_type", "parent_id"], name: "index_comments_on_parent_type_and_parent_id", using: :btree
 
-  create_table 'posts', force: :cascade do |t|
-    t.text 'body'
-    t.string 'header'
-    t.integer 'author_id'
-    t.datetime 'created_at', null: false
-    t.datetime 'updated_at', null: false
+  create_table "posts", force: :cascade do |t|
+    t.text     "body"
+    t.string   "header"
+    t.integer  "author_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  add_index 'posts', ['author_id'], name: 'index_posts_on_author_id', using: :btree
+  add_index "posts", ["author_id"], name: "index_posts_on_author_id", using: :btree
 
-  create_table 'users', force: :cascade do |t|
-    t.string 'first_name'
-    t.string 'last_name'
-    t.string 'email'
-    t.string 'password'
-    t.datetime 'created_at', null: false
-    t.datetime 'updated_at', null: false
+  create_table "users", force: :cascade do |t|
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.string   "provider",           default: "email", null: false
+    t.string   "uid",                default: "",      null: false
+    t.string   "encrypted_password", default: "",      null: false
+    t.json     "tokens"
   end
+
+  add_index "users", ["email"], name: "index_users_on_email", using: :btree
+  add_index "users", ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true, using: :btree
+
 end

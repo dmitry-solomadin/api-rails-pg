@@ -27,11 +27,11 @@ describe 'Users' do
   describe 'USER /users' do
     context 'with valid params' do
       it 'creates a User' do
-        post '/users', user: { email: 'email@email.com', password: 'qwerty' }
+        post '/users', user: { email: 'email@email.com', password: 'qwerty', password_confirmation: 'qwerty' }
 
         user = User.first
         expect(user.email).to eq 'email@email.com'
-        expect(user.password).to eq 'qwerty'
+        expect(User.first.valid_password? 'qwerty').to be true
 
         expect(response.body).to be_json_eql(user.to_json)
         expect(response.status).to eq 201
@@ -42,7 +42,8 @@ describe 'Users' do
       it 'does not create a User' do
         post '/users', user: { blah: 'bla' }
 
-        expect(json).to be_jsonapi_validation_errors('email' => "can't be blank", 'password' => "can't be blank")
+        expect(json).to be_jsonapi_validation_errors('email' => "can't be blank, is not an email",
+                                                     'password' => "can't be blank")
         expect(response.status).to eq 422
       end
     end
@@ -121,7 +122,7 @@ describe 'Users' do
             user.reload
             expect(user.email).to eq old_email
 
-            expect(json).to be_jsonapi_validation_errors('email' => "can't be blank")
+            expect(json).to be_jsonapi_validation_errors('email' => "can't be blank, is not an email")
             expect(response.status).to eq 422
           end
         end

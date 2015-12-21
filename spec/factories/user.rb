@@ -4,5 +4,7 @@ FactoryGirl.define do
     sequence(:first_name) { |n| "John-#{n}" }
     sequence(:last_name) { |n| "Doe-#{n}" }
     password '12345678'
+    password_confirmation '12345678'
+    tokens ''
   end
 end

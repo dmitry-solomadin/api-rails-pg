@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  include DeviseTokenAuth::Concerns::SetUserByToken
   include Concerns::Render
 
   # Instead of rising exception or returning null when there is no record, let's return proper response.
