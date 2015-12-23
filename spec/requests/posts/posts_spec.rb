@@ -1,4 +1,4 @@
-describe 'Posts' do
+describe 'Posts controller request' do
   let!(:user) { create :user }
 
   # Index
@@ -27,31 +27,38 @@ describe 'Posts' do
 
   # Create
   describe 'POST /posts' do
-    context 'with valid params' do
-      it 'creates a Post' do
-        post '/posts', post: { author_id: user.id, body: 'This is post body', header: 'Great header' }
+    context 'as authorized user' do
+      context 'with valid params' do
+        it 'creates a Post' do
+          post_as_user '/posts', post: { author_id: user.id, body: 'This is post body', header: 'Great header' }
 
-        post = Post.first
-        expect(post.author_id).to eq user.id
-        expect(post.body).to eq 'This is post body'
-        expect(post.header).to eq 'Great header'
+          post = Post.first
+          expect(post.author_id).to eq user.id
+          expect(post.body).to eq 'This is post body'
+          expect(post.header).to eq 'Great header'
 
-        expect(response.body).to be_json_eql(post.to_json)
-        expect(response.status).to eq 201
+          expect(response.body).to be_json_eql(post.to_json)
+          expect(response.status).to eq 201
+        end
+      end
+
+      context 'with invalid params' do
+        it 'does not create a Post' do
+          post_as_user '/posts', post: { blah: 'bla' }
+
+          expect(json).to be_jsonapi_validation_errors(
+            'body' => "can't be blank",
+            'header' => "can't be blank",
+            'author' => "can't be blank"
+          )
+          expect(response.status).to eq 422
+        end
       end
     end
 
-    context 'with invalid params' do
-      it 'does not create a Post' do
-        post '/posts', post: { blah: 'bla' }
-
-        expect(json).to be_jsonapi_validation_errors(
-          'body' => "can't be blank",
-          'header' => "can't be blank",
-          'author' => "can't be blank"
-        )
-        expect(response.status).to eq 422
-      end
+    context 'as unauthorized user' do
+      let(:response) { post '/posts' }
+      it_behaves_like 'authenticate protected action'
     end
   end
 
@@ -83,23 +90,30 @@ describe 'Posts' do
     let!(:user) { create :user }
     let!(:post) { create :post, author: user }
 
-    context 'when Post exists' do
-      it 'deletes Post' do
-        delete "/posts/#{post.id}"
+    context 'as authorized user' do
+      context 'when Post exists' do
+        it 'deletes Post' do
+          delete_as_user "/posts/#{post.id}"
 
-        expect(Post.count).to eq 0
-        expect(response.body).to be_json_eql('')
-        expect(response.status).to eq 200
+          expect(Post.count).to eq 0
+          expect(response.body).to be_json_eql('')
+          expect(response.status).to eq 200
+        end
+      end
+
+      context 'when Post does not exist' do
+        it 'returns error' do
+          delete_as_user '/posts/123'
+
+          expect(json).to be_jsonapi_not_found_error("Couldn't find Post with 'id'=123")
+          expect(response.status).to eq 404
+        end
       end
     end
 
-    context 'when Post does not exist' do
-      it 'returns error' do
-        delete '/posts/123'
-
-        expect(json).to be_jsonapi_not_found_error("Couldn't find Post with 'id'=123")
-        expect(response.status).to eq 404
-      end
+    context 'as unauthorized user' do
+      let(:response) { delete '/posts/123' }
+      it_behaves_like 'authenticate protected action'
     end
   end
 
@@ -109,23 +123,23 @@ describe 'Posts' do
       let(:user) { create :user }
       let(:post) { create :post, author: user }
 
-      context 'with valid params' do
-        it 'updates Post' do
-          patch "/posts/#{post.id}", post: { body: 'new body', header: 'new header' }
+      context 'as authorized user' do
+        context 'with valid params' do
+          it 'updates Post' do
+            patch_as_user "/posts/#{post.id}", post: { body: 'new body', header: 'new header' }
 
-          post.reload
-          expect(post.body).to eq 'new body'
-          expect(post.header).to eq 'new header'
+            post.reload
+            expect(post.body).to eq 'new body'
+            expect(post.header).to eq 'new header'
 
-          expect(response.body).to be_json_eql(post.to_json)
-          expect(response.status).to eq 200
+            expect(response.body).to be_json_eql(post.to_json)
+            expect(response.status).to eq 200
+          end
         end
-      end
 
-      describe 'Unprocessable Entity' do
         context 'with invalid params' do
           it 'does not update Post' do
-            patch "/posts/#{post.id}", post: { body: '', header: '' }
+            patch_as_user "/posts/#{post.id}", post: { body: '', header: '' }
 
             post.reload
             expect(post.body).to eq 'body'
@@ -134,6 +148,11 @@ describe 'Posts' do
             expect(response.status).to eq 422
           end
         end
+      end
+
+      context 'as unauthorized user' do
+        let(:response) { patch '/posts/123' }
+        it_behaves_like 'authenticate protected action'
       end
     end
   end

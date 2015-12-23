@@ -1,4 +1,4 @@
-describe 'Comments' do
+describe 'Comments controller request' do
   let!(:user) { create :user }
 
   # Index
@@ -30,32 +30,39 @@ describe 'Comments' do
   describe 'POST /comments' do
     let!(:post_1) { create :post, author: user }
 
-    context 'with valid params' do
-      it 'creates a Comment' do
-        post '/comments', comment: { author_id: user.id, text: 'This is comment text',
-                                     parent_id: post_1.id, parent_type: 'Post' }
+    context 'as authorized user' do
+      context 'with valid params' do
+        it 'creates a Comment' do
+          post_as_user '/comments', comment: { author_id: user.id, text: 'This is comment text',
+                                               parent_id: post_1.id, parent_type: 'Post' }
 
-        comment = Comment.first
-        expect(comment.author_id).to eq user.id
-        expect(comment.text).to eq 'This is comment text'
-        expect(comment.parent).to eq post_1
+          comment = Comment.first
+          expect(comment.author_id).to eq user.id
+          expect(comment.text).to eq 'This is comment text'
+          expect(comment.parent).to eq post_1
 
-        expect(response.body).to be_json_eql(comment.to_json)
-        expect(response.status).to eq 201
+          expect(response.body).to be_json_eql(comment.to_json)
+          expect(response.status).to eq 201
+        end
+      end
+
+      context 'with invalid params' do
+        it 'does not create a Comment' do
+          post_as_user '/comments', comment: { blah: 'bla' }
+
+          expect(json).to be_jsonapi_validation_errors(
+            'text' => "can't be blank",
+            'parent' => "can't be blank",
+            'author' => "can't be blank"
+          )
+          expect(response.status).to eq 422
+        end
       end
     end
 
-    context 'with invalid params' do
-      it 'does not create a Comment' do
-        post '/comments', comment: { blah: 'bla' }
-
-        expect(json).to be_jsonapi_validation_errors(
-          'text' => "can't be blank",
-          'parent' => "can't be blank",
-          'author' => "can't be blank"
-        )
-        expect(response.status).to eq 422
-      end
+    context 'as unauthorized user' do
+      let(:response) { post '/comments' }
+      it_behaves_like 'authenticate protected action'
     end
   end
 
@@ -89,23 +96,30 @@ describe 'Comments' do
     let!(:post) { create :post, author: user }
     let!(:comment) { create :comment, author: user, parent: post }
 
-    context 'when Comment exists' do
-      it 'deletes Comment' do
-        delete "/comments/#{comment.id}"
+    context 'as authorized user' do
+      context 'when Comment exists' do
+        it 'deletes Comment' do
+          delete_as_user "/comments/#{comment.id}"
 
-        expect(Comment.count).to eq 0
-        expect(response.body).to be_json_eql('')
-        expect(response.status).to eq 200
+          expect(Comment.count).to eq 0
+          expect(response.body).to be_json_eql('')
+          expect(response.status).to eq 200
+        end
+      end
+
+      context 'when Comment does not exist' do
+        it 'returns error' do
+          delete_as_user '/comments/123'
+
+          expect(json).to be_jsonapi_not_found_error("Couldn't find Comment with 'id'=123")
+          expect(response.status).to eq 404
+        end
       end
     end
 
-    context 'when Comment does not exist' do
-      it 'returns error' do
-        delete '/comments/123'
-
-        expect(json).to be_jsonapi_not_found_error("Couldn't find Comment with 'id'=123")
-        expect(response.status).to eq 404
-      end
+    context 'as unauthorized user' do
+      let(:response) { delete '/comments/123' }
+      it_behaves_like 'authenticate protected action'
     end
   end
 
@@ -116,22 +130,22 @@ describe 'Comments' do
       let(:post) { create :post, author: user }
       let(:comment) { create :comment, author: user, parent: post }
 
-      context 'with valid params' do
-        it 'updates Comment' do
-          patch "/comments/#{comment.id}", comment: { text: 'new text' }
+      context 'as authorized user' do
+        context 'with valid params' do
+          it 'updates Comment' do
+            patch_as_user "/comments/#{comment.id}", comment: { text: 'new text' }
 
-          comment.reload
-          expect(comment.text).to eq 'new text'
+            comment.reload
+            expect(comment.text).to eq 'new text'
 
-          expect(response.body).to be_json_eql(comment.to_json)
-          expect(response.status).to eq 200
+            expect(response.body).to be_json_eql(comment.to_json)
+            expect(response.status).to eq 200
+          end
         end
-      end
 
-      describe 'Unprocessable Entity' do
         context 'with invalid params' do
           it 'does not update Comment' do
-            patch "/comments/#{comment.id}", comment: { text: '', parent_id: '' }
+            patch_as_user "/comments/#{comment.id}", comment: { text: '', parent_id: '' }
 
             comment.reload
             expect(comment.text).to eq 'text'
@@ -142,6 +156,11 @@ describe 'Comments' do
             expect(response.status).to eq 422
           end
         end
+      end
+
+      context 'as unauthorized user' do
+        let(:response) { patch '/comments/123' }
+        it_behaves_like 'authenticate protected action'
       end
     end
   end

@@ -27,3 +27,18 @@ RSpec::Matchers.define :be_jsonapi_not_found_error do |message|
     }
   end
 end
+
+RSpec::Matchers.define :be_jsonapi_forbidden_error do
+  match do |response|
+    response == {
+      'errors' => [
+        {
+          'status' => 403,
+          'title' => 'Forbidden',
+          'source' => { 'attribute' => '' },
+          'message' => 'You are not authorized to access this page.'
+        }
+      ]
+    }
+  end
+end

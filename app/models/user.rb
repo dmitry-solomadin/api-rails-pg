@@ -8,4 +8,16 @@ class User < ActiveRecord::Base
 
   validates :password, presence: true, on: :create
   validates_confirmation_of :password, on: :create
+
+  before_validation :set_provider, :set_uid
+
+private
+
+  def set_provider
+    self[:provider] = 'email' if self[:provider].blank?
+  end
+
+  def set_uid
+    self[:uid] = self[:email] if self[:uid].blank? && self[:email].present?
+  end
 end
