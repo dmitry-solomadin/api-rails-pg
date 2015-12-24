@@ -1,6 +1,6 @@
 class PostsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
-  before_action :load_post, only: [:show, :update, :destroy]
+  load_and_authorize_resource
 
   def index
     @posts = Post.all
@@ -38,10 +38,6 @@ class PostsController < ApplicationController
   end
 
 private
-
-  def load_post
-    @post = Post.find(params[:id])
-  end
 
   def post_params
     params.require(:post).permit(:header, :body, :author_id)

@@ -6,7 +6,7 @@ describe 'Registration' do
   describe 'POST /auth' do
     context 'with valid params' do
       it 'creates a User' do
-        post '/auth', email: 'email@email.com', password: 'qwerty', password_confirmation: 'qwerty'
+        post '/auth', email: 'email@email.com', role: 'USER', password: 'qwerty', password_confirmation: 'qwerty'
         user = User.first
         expect(user.email).to eq 'email@email.com'
         expect(User.first.valid_password? 'qwerty').to be true

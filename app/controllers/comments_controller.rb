@@ -1,6 +1,6 @@
 class CommentsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
-  before_action :load_comment, only: [:show, :update, :destroy]
+  load_and_authorize_resource
 
   def index
     @comments = Comment.all
@@ -38,10 +38,6 @@ class CommentsController < ApplicationController
   end
 
 private
-
-  def load_comment
-    @comment = Comment.find(params[:id])
-  end
 
   def comment_params
     params.require(:comment).permit(:text, :parent_id, :parent_type, :author_id)

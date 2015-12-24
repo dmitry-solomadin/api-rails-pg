@@ -1,3 +1,4 @@
+# TODO: add spec to check that user can :create, :delete only his posts
 describe 'Posts controller request' do
   let!(:user) { create :user }
 
@@ -27,7 +28,7 @@ describe 'Posts controller request' do
 
   # Create
   describe 'POST /posts' do
-    context 'as authorized user' do
+    context 'as authenticated user' do
       context 'with valid params' do
         it 'creates a Post' do
           post_as_user '/posts', post: { author_id: user.id, body: 'This is post body', header: 'Great header' }
@@ -56,7 +57,7 @@ describe 'Posts controller request' do
       end
     end
 
-    context 'as unauthorized user' do
+    context 'as unauthenticated user' do
       let(:response) { post '/posts' }
       it_behaves_like 'authenticate protected action'
     end
@@ -90,7 +91,7 @@ describe 'Posts controller request' do
     let!(:user) { create :user }
     let!(:post) { create :post, author: user }
 
-    context 'as authorized user' do
+    context 'as authenticated user' do
       context 'when Post exists' do
         it 'deletes Post' do
           delete_as_user "/posts/#{post.id}"
@@ -109,9 +110,23 @@ describe 'Posts controller request' do
           expect(response.status).to eq 404
         end
       end
+
+      context 'as unauthorized user' do
+        let!(:user) { create :user }
+        let!(:post_author) { create :user }
+        let!(:post) { create :post, author: post_author }
+
+        it 'does not delete a Post' do
+          delete_as_user "/posts/#{post.id}"
+
+          expect(Post.count).to eq 1
+          expect(json).to be_jsonapi_forbidden_error
+          expect(response.status).to eq 403
+        end
+      end
     end
 
-    context 'as unauthorized user' do
+    context 'as unauthenticated user' do
       let(:response) { delete '/posts/123' }
       it_behaves_like 'authenticate protected action'
     end
@@ -123,7 +138,7 @@ describe 'Posts controller request' do
       let(:user) { create :user }
       let(:post) { create :post, author: user }
 
-      context 'as authorized user' do
+      context 'as authenticated user' do
         context 'with valid params' do
           it 'updates Post' do
             patch_as_user "/posts/#{post.id}", post: { body: 'new body', header: 'new header' }
@@ -148,9 +163,26 @@ describe 'Posts controller request' do
             expect(response.status).to eq 422
           end
         end
+
+        context 'as unauthorized user' do
+          let!(:user) { create :user }
+          let!(:post_author) { create :user }
+          let!(:post) { create :post, author: post_author }
+
+          it 'does not update a Post' do
+            patch_as_user "/posts/#{post.id}", post: { body: 'new body', header: 'new header' }
+
+            post.reload
+            expect(post.body).to eq 'body'
+            expect(post.header).to eq 'header'
+
+            expect(json).to be_jsonapi_forbidden_error
+            expect(response.status).to eq 403
+          end
+        end
       end
 
-      context 'as unauthorized user' do
+      context 'as unauthenticated user' do
         let(:response) { patch '/posts/123' }
         it_behaves_like 'authenticate protected action'
       end

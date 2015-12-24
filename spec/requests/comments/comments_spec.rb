@@ -1,3 +1,4 @@
+# TODO: add spec to check that user can :create, :delete only his comments
 describe 'Comments controller request' do
   let!(:user) { create :user }
 
@@ -30,7 +31,7 @@ describe 'Comments controller request' do
   describe 'POST /comments' do
     let!(:post_1) { create :post, author: user }
 
-    context 'as authorized user' do
+    context 'as authenticated user' do
       context 'with valid params' do
         it 'creates a Comment' do
           post_as_user '/comments', comment: { author_id: user.id, text: 'This is comment text',
@@ -60,7 +61,7 @@ describe 'Comments controller request' do
       end
     end
 
-    context 'as unauthorized user' do
+    context 'as unauthenticated user' do
       let(:response) { post '/comments' }
       it_behaves_like 'authenticate protected action'
     end
@@ -96,7 +97,7 @@ describe 'Comments controller request' do
     let!(:post) { create :post, author: user }
     let!(:comment) { create :comment, author: user, parent: post }
 
-    context 'as authorized user' do
+    context 'as authenticated user' do
       context 'when Comment exists' do
         it 'deletes Comment' do
           delete_as_user "/comments/#{comment.id}"
@@ -115,9 +116,24 @@ describe 'Comments controller request' do
           expect(response.status).to eq 404
         end
       end
+
+      context 'as unauthorized user' do
+        let!(:user) { create :user }
+        let!(:post_author) { create :user }
+        let!(:post) { create :post, author: post_author }
+        let(:comment) { create :comment, author: post_author, parent: post }
+
+        it 'does not update a Post' do
+          delete_as_user "/comments/#{comment.id}"
+
+          expect(Comment.count).to eq 1
+          expect(json).to be_jsonapi_forbidden_error
+          expect(response.status).to eq 403
+        end
+      end
     end
 
-    context 'as unauthorized user' do
+    context 'as unauthenticated user' do
       let(:response) { delete '/comments/123' }
       it_behaves_like 'authenticate protected action'
     end
@@ -130,7 +146,7 @@ describe 'Comments controller request' do
       let(:post) { create :post, author: user }
       let(:comment) { create :comment, author: user, parent: post }
 
-      context 'as authorized user' do
+      context 'as authenticated user' do
         context 'with valid params' do
           it 'updates Comment' do
             patch_as_user "/comments/#{comment.id}", comment: { text: 'new text' }
@@ -156,9 +172,26 @@ describe 'Comments controller request' do
             expect(response.status).to eq 422
           end
         end
+
+        context 'as unauthorized user' do
+          let!(:user) { create :user }
+          let!(:post_author) { create :user }
+          let!(:post) { create :post, author: post_author }
+          let(:comment) { create :comment, author: post_author, parent: post }
+
+          it 'does not update a Comment' do
+            patch_as_user "/comments/#{comment.id}", comment: { text: 'new text' }
+
+            post.reload
+            expect(comment.text).to eq 'text'
+
+            expect(json).to be_jsonapi_forbidden_error
+            expect(response.status).to eq 403
+          end
+        end
       end
 
-      context 'as unauthorized user' do
+      context 'as unauthenticated user' do
         let(:response) { patch '/comments/123' }
         it_behaves_like 'authenticate protected action'
       end
