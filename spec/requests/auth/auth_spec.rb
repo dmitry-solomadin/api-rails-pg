@@ -1,4 +1,31 @@
-describe 'Registration' do
+describe 'Authentication' do
+  describe 'POST /auth/sign_in' do
+    context 'with valid params' do
+      let!(:user) do
+        create :user, email: 'email@email.com', password: '123', password_confirmation: '123',
+                      first_name: 'Dmitry', last_name: 'Solomadin'
+      end
+
+      it 'authenticates a User' do
+        post '/auth/sign_in', email: 'email@email.com', password: '123'
+
+        expect(response.body).to be_json_eql({ data: User.first }.to_json)
+        expect(response.status).to eq 200
+      end
+    end
+
+    context 'with invalid params' do
+      it 'does not authenticate a User' do
+        post '/auth/sign_in', email: 'email@email.com', password: '123'
+
+        expect(response.body).to be_json_eql({ errors: ['Invalid login credentials. Please try again.'] }.to_json)
+        expect(response.status).to eq 401
+      end
+    end
+  end
+end
+
+describe 'User management' do
   def invalid_auth_response(errors)
     { status: 'error', errors: errors }.to_json
   end
@@ -31,9 +58,10 @@ describe 'Registration' do
     context 'with valid params' do
       let!(:user) { create :user, email: 'email@email.com' }
 
-      it 'does not delete a User' do
+      it 'does deletes a User' do
         delete_as_user '/auth'
 
+        expect(User.count).to eq 0
         expect(response.body).to be_json_eql({ message: 'Account with uid email@email.com has been destroyed.',
                                                status: 'success' }.to_json)
         expect(response.status).to eq 200
