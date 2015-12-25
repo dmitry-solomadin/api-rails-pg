@@ -8,6 +8,7 @@ gem 'coffee-rails', '~> 4.1.0'
 gem 'puma'
 gem 'cancancan'
 gem 'devise_token_auth'
+gem 'rack-cors', require: 'rack/cors'
 
 group :development, :test do
   gem 'byebug'
