@@ -1,4 +1,3 @@
-# TODO: add spec to check that user can :create, :delete only his posts
 describe 'Posts controller request' do
   let!(:user) { create :user }
 

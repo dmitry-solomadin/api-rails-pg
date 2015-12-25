@@ -1,4 +1,3 @@
-# TODO: add spec to check that user can :create, :delete only his comments
 describe 'Comments controller request' do
   let!(:user) { create :user }
 
