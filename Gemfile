@@ -9,6 +9,7 @@ gem 'puma'
 gem 'cancancan'
 gem 'devise_token_auth'
 gem 'rack-cors', require: 'rack/cors'
+gem 'forgery'
 
 group :development, :test do
   gem 'byebug'

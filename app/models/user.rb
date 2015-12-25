@@ -9,6 +9,7 @@ class User < ActiveRecord::Base
   ROLES = ['ADMIN', 'USER']
 
   validates :password, :role, presence: true, on: :create
+  validates_uniqueness_of :email
   validates_confirmation_of :password, on: :create
   validates_inclusion_of :role, in: ROLES
 
