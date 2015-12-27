@@ -38,7 +38,7 @@ describe 'Posts controller request' do
           expect(post.header).to eq 'Great header'
 
           expect(response.body).to be_json_eql(post.to_json)
-          expect(response.status).to eq 201
+          expect(response.status).to eq 200
         end
       end
 
@@ -66,11 +66,20 @@ describe 'Posts controller request' do
   describe 'GET /posts/:id' do
     context 'when Post exist in database' do
       let!(:post) { create :post, author: user }
+      let!(:comment_1) { create :comment, author: user, parent: post }
+      let!(:comment_2) { create :comment, author: user, parent: post }
 
       it 'returns Post' do
         get "/posts/#{post.id}"
 
         expect(response.body).to be_json_eql(post.to_json)
+        expect(response.status).to eq 200
+      end
+
+      it 'returns Post with comments' do
+        get "/posts/#{post.id}", include: 'comments'
+
+        expect(response.body).to be_json_eql(post.to_json(include: :comments))
         expect(response.status).to eq 200
       end
     end

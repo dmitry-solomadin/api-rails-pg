@@ -4,18 +4,18 @@ class PostsController < ApplicationController
 
   def index
     @posts = Post.all
-    render json: @posts
+    render_json @posts
   end
 
   def show
-    render json: @post
+    render_json @post
   end
 
   def create
     @post = Post.new(post_params)
 
     if @post.save
-      render json: @post, status: :created, location: @post
+      render_json @post
     else
       render_errors_json(messages: @post.errors.messages, status: :unprocessable_entity)
     end
@@ -23,7 +23,7 @@ class PostsController < ApplicationController
 
   def update
     if @post.update(post_params)
-      render json: @post
+      render_json @post
     else
       render_errors_json(messages: @post.errors.messages, status: :unprocessable_entity)
     end

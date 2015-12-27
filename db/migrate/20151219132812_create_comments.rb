@@ -2,7 +2,6 @@ class CreateComments < ActiveRecord::Migration
   def change
     create_table :comments do |t|
       t.column :text, :text
-      t.column :post_id, :string
       t.column :author_id, :integer
       t.references(:parent, polymorphic: true, index: true)
 

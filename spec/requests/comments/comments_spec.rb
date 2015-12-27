@@ -42,7 +42,7 @@ describe 'Comments controller request' do
           expect(comment.parent).to eq post_1
 
           expect(response.body).to be_json_eql(comment.to_json)
-          expect(response.status).to eq 201
+          expect(response.status).to eq 200
         end
       end
 
@@ -71,11 +71,19 @@ describe 'Comments controller request' do
     context 'when Comment exist in database' do
       let!(:post) { create :post, author: user }
       let!(:comment) { create :comment, author: user, parent: post }
+      let!(:child_comment) { create :comment, author: user, parent: comment }
 
       it 'returns Comment' do
         get "/comments/#{comment.id}"
 
         expect(response.body).to be_json_eql(comment.to_json)
+        expect(response.status).to eq 200
+      end
+
+      it 'returns Comment with child comment' do
+        get "/comments/#{comment.id}", include: :comments
+
+        expect(response.body).to be_json_eql(comment.to_json(include: :comments))
         expect(response.status).to eq 200
       end
     end

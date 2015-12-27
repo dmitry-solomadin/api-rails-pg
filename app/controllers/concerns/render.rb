@@ -3,6 +3,10 @@ module Concerns::Render
 
 private
 
+  def render_json(obj, opts = {})
+    render({ json: obj, include: params[:include] }.merge!(opts))
+  end
+
   def render_errors_json(messages:, status:)
     messages = Array(messages).map { |message| Array(message) }
 
