@@ -7,7 +7,7 @@ class Ability
     elsif user.admin?
       can :manage, :all
     else
-      can :create, :all
+      can [:read, :create], :all
       can [:update, :destroy], :all, author_id: user.id
     end
   end
