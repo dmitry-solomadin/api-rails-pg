@@ -11,7 +11,7 @@ describe 'Comments controller request' do
       it 'returns Comments' do
         get '/comments'
 
-        expect(response.body).to be_json_eql(to_json(comment_1, comment_2))
+        expect(response.body).to be_json_eql(json_helper(comment_1, comment_2))
         expect(response.status).to eq 200
       end
     end
@@ -41,7 +41,7 @@ describe 'Comments controller request' do
           expect(comment.text).to eq 'This is comment text'
           expect(comment.parent).to eq post_1
 
-          expect(response.body).to be_json_eql(comment.to_json)
+          expect(response.body).to be_json_eql(json_helper(comment))
           expect(response.status).to eq 200
         end
       end
@@ -76,14 +76,14 @@ describe 'Comments controller request' do
       it 'returns Comment' do
         get "/comments/#{comment.id}"
 
-        expect(response.body).to be_json_eql(comment.to_json)
+        expect(response.body).to be_json_eql(json_helper(comment))
         expect(response.status).to eq 200
       end
 
       it 'returns Comment with child comment' do
         get "/comments/#{comment.id}", include: :comments
 
-        expect(response.body).to be_json_eql(comment.to_json(include: :comments))
+        expect(response.body).to be_json_eql(json_helper(comment, include: [:comments]))
         expect(response.status).to eq 200
       end
     end
@@ -161,7 +161,7 @@ describe 'Comments controller request' do
             comment.reload
             expect(comment.text).to eq 'new text'
 
-            expect(response.body).to be_json_eql(comment.to_json)
+            expect(response.body).to be_json_eql(json_helper(comment))
             expect(response.status).to eq 200
           end
         end

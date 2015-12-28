@@ -10,7 +10,7 @@ describe 'Posts controller request' do
       it 'returns Posts' do
         get '/posts'
 
-        expect(response.body).to be_json_eql(to_json(post_1, post_2))
+        expect(response.body).to be_json_eql(json_helper(post_1, post_2))
         expect(response.status).to eq 200
       end
     end
@@ -37,7 +37,7 @@ describe 'Posts controller request' do
           expect(post.body).to eq 'This is post body'
           expect(post.header).to eq 'Great header'
 
-          expect(response.body).to be_json_eql(post.to_json)
+          expect(response.body).to be_json_eql(json_helper(post))
           expect(response.status).to eq 200
         end
       end
@@ -72,14 +72,14 @@ describe 'Posts controller request' do
       it 'returns Post' do
         get "/posts/#{post.id}"
 
-        expect(response.body).to be_json_eql(post.to_json)
+        expect(response.body).to be_json_eql(json_helper(post))
         expect(response.status).to eq 200
       end
 
       it 'returns Post with comments' do
         get "/posts/#{post.id}", include: 'comments'
 
-        expect(response.body).to be_json_eql(post.to_json(include: :comments))
+        expect(response.body).to be_json_eql(json_helper(post, include: [:comments]))
         expect(response.status).to eq 200
       end
     end
@@ -155,7 +155,7 @@ describe 'Posts controller request' do
             expect(post.body).to eq 'new body'
             expect(post.header).to eq 'new header'
 
-            expect(response.body).to be_json_eql(post.to_json)
+            expect(response.body).to be_json_eql(json_helper(post))
             expect(response.status).to eq 200
           end
         end

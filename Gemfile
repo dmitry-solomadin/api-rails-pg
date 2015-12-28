@@ -10,6 +10,7 @@ gem 'cancancan'
 gem 'devise_token_auth'
 gem 'rack-cors', require: 'rack/cors'
 gem 'forgery'
+gem 'active_model_serializers', '0.10.0.rc2'
 
 group :development, :test do
   gem 'byebug'

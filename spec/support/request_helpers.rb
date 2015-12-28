@@ -4,13 +4,18 @@ module Requests
       JSON.parse(response.body)
     end
 
-    def to_json(*args)
+    def json_helper(*args, include: [])
       raise ArgumentError, 'expect objects' unless args.first.class < ActiveRecord::Base
-      args.map { |o| o }.to_json
+
+      serializer_klass = "#{args.first.class}Serializer".constantize
+      objects_for_serialization = args.map { |o| serializer_klass.new(o) }
+      objects_for_serialization = objects_for_serialization.first if objects_for_serialization.count == 1
+
+      ActiveModel::Serializer::Adapter::JsonApi.create(objects_for_serialization, include: include).to_json
     end
 
     def empty_json_data
-      [].to_json
+      ActiveModel::Serializer::Adapter::JsonApi.create([]).to_json
     end
   end
 
