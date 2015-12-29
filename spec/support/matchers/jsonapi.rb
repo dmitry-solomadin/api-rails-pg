@@ -6,7 +6,7 @@ RSpec::Matchers.define :be_jsonapi_validation_errors do |errors|
         response['errors'].include?(
           'status' => 422,
           'title' => 'Unprocessable entity',
-          'source' => { 'pointer' => "#{attribute}" },
+          'source' => { 'pointer' => "/data/attributes/#{attribute}" },
           'detail' => Array(messages).join(', ')
         )
       end

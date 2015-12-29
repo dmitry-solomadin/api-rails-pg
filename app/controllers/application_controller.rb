@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   include CanCan::ControllerAdditions
 
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :json_api
 
   # Instead of rising exception or returning null when there is no record, let's return proper response.
   rescue_from ActiveRecord::RecordNotFound do |e|
@@ -15,6 +16,20 @@ class ApplicationController < ActionController::Base
   end
 
 protected
+
+  def json_api
+    if request.headers["Content-Type"] ==  'application/vnd.api+json'
+      req = JSON.parse(request.body.read)
+      data = req["data"]
+      params[data["type"].singularize] = ActiveSupport::HashWithIndifferentAccess.new(data["attributes"])
+      data["relationships"].each_key do |relationship|
+        rel_data = data["relationships"][relationship]["data"]
+        if rel_data.present?
+          params[data["type"].singularize][relationship + "_id"] = rel_data["id"]
+        end
+      end
+    end
+  end
 
   def configure_permitted_parameters
     devise_parameter_sanitizer.for(:sign_up) << :role
