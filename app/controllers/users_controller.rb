@@ -4,5 +4,4 @@ class UsersController < ApplicationController
   def show
     render_json @user
   end
-
 end

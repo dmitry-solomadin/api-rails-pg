@@ -30,7 +30,8 @@ describe 'Posts controller request' do
     context 'as authenticated user' do
       context 'with valid params' do
         it 'creates a Post' do
-          post_as_user '/posts', post: { author_id: user.id, body: 'This is post body', header: 'Great header' }
+          post_as_user '/posts', data: { attributes:
+                                     { author_id: user.id, body: 'This is post body', header: 'Great header' } }
 
           post = Post.first
           expect(post.author_id).to eq user.id
@@ -44,7 +45,7 @@ describe 'Posts controller request' do
 
       context 'with invalid params' do
         it 'does not create a Post' do
-          post_as_user '/posts', post: { blah: 'bla' }
+          post_as_user '/posts', data: { attributes: { blah: 'bla' } }
 
           expect(json).to be_jsonapi_validation_errors(
             'body' => "can't be blank",
@@ -149,7 +150,7 @@ describe 'Posts controller request' do
       context 'as authenticated user' do
         context 'with valid params' do
           it 'updates Post' do
-            patch_as_user "/posts/#{post.id}", post: { body: 'new body', header: 'new header' }
+            patch_as_user "/posts/#{post.id}", data: { attributes: { body: 'new body', header: 'new header' } }
 
             post.reload
             expect(post.body).to eq 'new body'
@@ -162,7 +163,7 @@ describe 'Posts controller request' do
 
         context 'with invalid params' do
           it 'does not update Post' do
-            patch_as_user "/posts/#{post.id}", post: { body: '', header: '' }
+            patch_as_user "/posts/#{post.id}", data: { attributes: { body: '', header: '' } }
 
             post.reload
             expect(post.body).to eq 'body'
@@ -178,7 +179,7 @@ describe 'Posts controller request' do
           let!(:post) { create :post, author: post_author }
 
           it 'does not update a Post' do
-            patch_as_user "/posts/#{post.id}", post: { body: 'new body', header: 'new header' }
+            patch_as_user "/posts/#{post.id}", data: { attributes: { body: 'new body', header: 'new header' } }
 
             post.reload
             expect(post.body).to eq 'body'

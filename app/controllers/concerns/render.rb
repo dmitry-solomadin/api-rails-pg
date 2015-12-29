@@ -15,8 +15,8 @@ private
         {
           status: Rack::Utils::SYMBOL_TO_STATUS_CODE[status],
           title: status.to_s.humanize,
-          source: { attribute: message.size > 1 ? message.first : '' },
-          message: Array(message.last).join(', ')
+          source: { pointer: message.size > 1 ? message.first : '' },
+          detail: Array(message.last).join(', ')
         }
       end
     }, status: status

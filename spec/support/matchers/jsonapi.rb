@@ -6,8 +6,8 @@ RSpec::Matchers.define :be_jsonapi_validation_errors do |errors|
         response['errors'].include?(
           'status' => 422,
           'title' => 'Unprocessable entity',
-          'source' => { 'attribute' => "#{attribute}" },
-          'message' => Array(messages).join(', ')
+          'source' => { 'pointer' => "#{attribute}" },
+          'detail' => Array(messages).join(', ')
         )
       end
   end
@@ -20,8 +20,8 @@ RSpec::Matchers.define :be_jsonapi_not_found_error do |message|
         {
           'status' => 404,
           'title' => 'Not found',
-          'source' => { 'attribute' => '' },
-          'message' => message
+          'source' => { 'pointer' => '' },
+          'detail' => message
         }
       ]
     }
@@ -35,8 +35,8 @@ RSpec::Matchers.define :be_jsonapi_forbidden_error do
         {
           'status' => 403,
           'title' => 'Forbidden',
-          'source' => { 'attribute' => '' },
-          'message' => 'You are not authorized to access this page.'
+          'source' => { 'pointer' => '' },
+          'detail' => 'You are not authorized to access this page.'
         }
       ]
     }
