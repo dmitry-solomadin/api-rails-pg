@@ -1,7 +1,7 @@
 development:
   adapter: postgresql
   encoding: unicode
-  database: api_react
+  database: api_rails
   pool: 5
   username:
   password:
@@ -9,7 +9,7 @@ development:
 test:
   adapter: postgresql
   encoding: unicode
-  database: api_react_test
+  database: api_rails_test
   pool: 5
   username:
   password:
