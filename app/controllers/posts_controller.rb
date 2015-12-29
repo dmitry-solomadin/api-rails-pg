@@ -3,7 +3,7 @@ class PostsController < ApplicationController
   load_and_authorize_resource
 
   def index
-    @posts = Post.all
+    @posts = Post.order(id: :desc).all
     render_json @posts
   end
 
