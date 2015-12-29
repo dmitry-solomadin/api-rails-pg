@@ -26,6 +26,9 @@ protected
         rel_data = data["relationships"][relationship]["data"]
         if rel_data.present?
           params[data["type"].singularize][relationship + "_id"] = rel_data["id"]
+          if rel_data["type"]
+            params[data["type"].singularize][relationship + "_type"] = rel_data["type"].singularize.capitalize
+          end
         end
       end
     end
